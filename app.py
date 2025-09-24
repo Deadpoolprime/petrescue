@@ -3,11 +3,14 @@ import requests
 import re
 
 # --- CONFIGURATION ---
+st.set_page_config(
+    page_title="PawFinder",
+    page_icon="🐾",
+    layout="centered"
+)
 DJANGO_API_URL = "http://127.0.0.1:8000/api/"
 
-# --- HELPER FUNCTIONS ---
 def validate_password(password):
-    """Returns a list of error messages if password is not strong enough."""
     errors = []
     if len(password) < 8:
         errors.append("Password must be at least 8 characters long.")
@@ -29,34 +32,45 @@ def switch_page(page_name):
 
 # Initialize session state for page navigation if it doesn't exist
 if 'page' not in st.session_state:
-    st.session_state.page = 'Login'
+    st.session_state.page = 'Home'
 
-# --- PAGE 1: LOGIN ---
-if st.session_state.page == 'Login':
-    st.title("Pet Rescue Login")
-
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-
-        login_button = st.form_submit_button("Login")
-        
-        if login_button:
-            # Note: Login API endpoint is not created yet. This is a placeholder.
-            st.warning("Login functionality is not yet implemented in the backend.")
-
+# --- PAGE 1: HOME / LOGIN ---
+if st.session_state.page == 'Home':
+    st.title("🐾 Welcome to PawFinder!")
+    # Use the local image file instead of a URL
+    st.image("welcome.png", use_container_width=True)
     st.write("---")
-    st.write("Don't have an account?")
-    st.button("Register Here", on_click=switch_page, args=('Register',))
+    st.header("Find your new best friend or report a lost pet.")
+    st.write("""PawFinder is a community dedicated to reuniting lost pets with their families
+    and helping shelter animals find their furever homes.
+    """)
+    st.write("---")
+
+    col1, col2 = st.columns([1, 1.2])
+
+    with col1:
+        st.subheader("Member Login")
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            login_button = st.form_submit_button("Login")
+            
+            if login_button:
+                st.warning("Login functionality is not yet implemented.")
+
+    with col2:
+        st.subheader("New Here?")
+        st.write("Join our community to help pets in need. Registration is free and easy!")
+        st.button("Register Here", on_click=switch_page, args=('Register',), use_container_width=True)
+
 
 # --- PAGE 2: REGISTRATION ---
 elif st.session_state.page == 'Register':
-    st.title("Create a New Account")
+    st.title("🐾 Create a PawFinder Account")
 
     with st.form("registration_form"):
         st.write("Please fill in the details below to register.")
         
-        # **FIX**: Add separate fields for username and email
         username = st.text_input("Username")
         email = st.text_input("Email")
         name = st.text_input("Full Name")
@@ -84,7 +98,6 @@ elif st.session_state.page == 'Register':
                 for error in password_errors:
                     st.error(error)
             else:
-                # **FIX**: Prepare data with separate username
                 registration_data = {
                     "username": username,
                     "email": email,
@@ -96,19 +109,18 @@ elif st.session_state.page == 'Register':
                 }
                 
                 try:
-                    # Send data to Django API
                     response = requests.post(f"{DJANGO_API_URL}register/", json=registration_data)
                     
                     if response.status_code == 201:
                         st.success("Registration successful! You can now log in.")
                         st.balloons()
                     else:
-                        # Show error message from the API
                         st.error(f"Registration failed: {response.json().get('error', 'Unknown error')}")
 
                 except requests.exceptions.ConnectionError:
                     st.error("Could not connect to the server. Please ensure the Django backend is running.")
 
+    # This section is now correctly placed outside the form
     st.write("---")
     st.write("Already have an account?")
-    st.button("Login Here", on_click=switch_page, args=('Login',))
+    st.button("Login Here", on_click=switch_page, args=('Home',))
