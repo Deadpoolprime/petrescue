@@ -29,6 +29,7 @@ class RegisterView(APIView):
         # **FIX**: Explicitly create the Profile for the new user
         Profile.objects.create(
             user=user,
+            name=request.data.get('name'), # Add this line
             age=request.data.get('age'),
             city=request.data.get('city'),
             phone_number=request.data.get('phone_number')

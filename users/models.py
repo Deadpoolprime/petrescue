@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     ROLE_CHOICES = (('admin', 'Admin'), ('user', 'User'))
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, null=True, blank=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     age = models.PositiveIntegerField(null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
